@@ -21,6 +21,9 @@ func Download() {
 }
 
 func ListPrograms() {
-	getPrograms()
+	err := getAvailablePrograms()
+	if err != nil {
+		panic(err)
+	}
 
 }
