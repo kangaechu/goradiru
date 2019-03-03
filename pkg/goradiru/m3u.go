@@ -18,8 +18,11 @@ func downloadEpisode(episode *Episode) (err error) {
 
 	progDir := config.ProgDir
 	fileType := config.FileType
-	episodePath := fmtFileName(episode, progDir, fileType)
 
+	metadata := generateMetadata(episode)
+
+	// 書き込み先ディレクトリの確認
+	episodePath := fmtFileName(episode, progDir, fileType)
 	if !isWritableDir(episodePath) {
 		err := os.MkdirAll(filepath.Dir(episodePath), 0755)
 		if err != nil {
@@ -27,7 +30,7 @@ func downloadEpisode(episode *Episode) (err error) {
 		}
 	}
 	if fileType == "mp4" {
-		err = convertM3u8ToMP4(m3u8Url, episodePath)
+		err = convertM3u8ToMP4(m3u8Url, episodePath, metadata)
 		if err != nil {
 			return err
 		}
@@ -37,7 +40,7 @@ func downloadEpisode(episode *Episode) (err error) {
 	return nil
 }
 
-func convertM3u8ToMP4(masterM3u8Path string, filename string) error {
+func convertM3u8ToMP4(masterM3u8Path string, filename string, metadata []string) error {
 	f, err := newFFMPEG(masterM3u8Path)
 	if err != nil {
 		return err
@@ -50,6 +53,8 @@ func convertM3u8ToMP4(masterM3u8Path string, filename string) error {
 		"-y",
 		"-bsf:a", "aac_adtstoasc",
 	)
+
+	f.setArgs(metadata...)
 
 	_, err = f.execute(filename)
 	if err != nil {
@@ -123,4 +128,13 @@ func isWritableDir(filename string) bool {
 		return false
 	}
 	return true
+}
+
+func generateMetadata(episode *Episode) (metadata []string) {
+	metadata = []string{
+		"-metadata", "title=" + episode.Title,
+		"-metadata", "genre=radio",
+		"-metadata", "artist=NHK",
+	}
+	return metadata
 }
