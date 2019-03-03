@@ -86,15 +86,16 @@ type Episode struct {
 // Episodeをダウンロード
 func (e *Episode) download() (err error) {
 	dp := GetDownloadedPrograms()
-	log.Print("doanloading ", e.Title)
 	if dp.isAlreadyDownloaded(e) {
-		log.Println(" already Downloaded ... skipped")
+		log.Printf("download skipped %s_%s_%s", e.Program.Title, e.Series.Title, e.Title)
 	} else {
+		log.Printf("download started %s_%s_%s", e.Program.Title, e.Series.Title, e.Title)
+
 		err = downloadEpisode(e)
 		if err != nil {
 			return err
 		}
-		log.Println("Downloaded")
+		log.Printf("download completed %s_%s_%s", e.Program.Title, e.Series.Title, e.Title)
 		err = dp.addDownloadedEpisode(e)
 		if err != nil {
 			return err

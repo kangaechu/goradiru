@@ -1,7 +1,5 @@
 package goradiru
 
-import "fmt"
-
 // 設定ファイル内のProgramsにあるEpisodeをダウンロード
 func Download() {
 	config := GetConfig()
@@ -12,7 +10,6 @@ func Download() {
 		if err != nil {
 			panic(err)
 		}
-		fmt.Println(program.Title)
 		err = program.Download()
 		if err != nil {
 			panic(err)
