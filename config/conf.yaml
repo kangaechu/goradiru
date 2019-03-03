@@ -4,7 +4,6 @@ DownloadedHistoryConfFile: config/downloaded.yaml
 Programs:
   - Name: FMシアター
     Url: https://www.nhk.or.jp/radioondemand/json/0058/bangumi_0058_01.json
-    Downloaded:
   - Name: 新日曜名作座
     Url: https://www.nhk.or.jp/radioondemand/json/0930/bangumi_0930_01.json
 #  - Name: 青春アドベンチャー
