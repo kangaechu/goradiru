@@ -2,8 +2,10 @@ package goradiru
 
 import (
 	"errors"
+	"golang.org/x/sys/unix"
 	"log"
 	"net/http"
+	"os"
 	"path/filepath"
 
 	"github.com/grafov/m3u8"
@@ -16,10 +18,16 @@ func downloadEpisode(episode *Episode) (err error) {
 
 	progDir := config.ProgDir
 	fileType := config.FileType
-	filename := fmtFileName(episode, progDir, fileType)
+	episodePath := fmtFileName(episode, progDir, fileType)
 
+	if !isWritableDir(episodePath) {
+		err := os.MkdirAll(filepath.Dir(episodePath), 0755)
+		if err != nil {
+			return err
+		}
+	}
 	if fileType == "mp4" {
-		err = convertM3u8ToMP4(m3u8Url, filename)
+		err = convertM3u8ToMP4(m3u8Url, episodePath)
 		if err != nil {
 			return err
 		}
@@ -43,7 +51,7 @@ func convertM3u8ToMP4(masterM3u8Path string, filename string) error {
 		"-bsf:a", "aac_adtstoasc",
 	)
 
-	_, err = f.execute(filename + ".mp4")
+	_, err = f.execute(filename)
 	if err != nil {
 		return err
 	}
@@ -91,6 +99,28 @@ func getM3u8MasterPlaylist(m3u8FilePath string) string {
 //　出力ファイル名のフルパスを返す
 func fmtFileName(episode *Episode, baseDir string, fileType string) string {
 	dirname := filepath.Join(".", baseDir)
-	filename := episode.Program.Title + "_" + episode.Series.Title + "_" + episode.Title + "." + fileType
+	var filename string
+	if episode.Series.Title == "" {
+		filename = episode.Program.Title + "_" + episode.Title + "." + fileType
+	} else {
+		filename = episode.Program.Title + "_" + episode.Series.Title + "_" + episode.Title + "." + fileType
+
+	}
 	return filepath.Join(dirname, filename)
+}
+
+// ファイル・ディレクトリの存在・書き込み確認
+func isWritableDir(filename string) bool {
+	stat, err := os.Stat(filename)
+	if err != nil {
+		return false
+	}
+	if !stat.IsDir() {
+		return false
+	}
+	err = unix.Access(filename, unix.W_OK)
+	if err != nil {
+		return false
+	}
+	return true
 }
