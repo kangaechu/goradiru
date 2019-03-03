@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+
 	viper.SetConfigName("conf")     // 設定ファイルのファイル名
 	viper.AddConfigPath("./config") // 設定ファイルのディレクトリ名
 	err := viper.ReadInConfig()
@@ -20,6 +21,5 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("error on parsing config %s \n", err))
 	}
-	
-	goradiru.Download()
+	execute()
 }

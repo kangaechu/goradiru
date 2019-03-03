@@ -19,3 +19,8 @@ func Download() {
 		}
 	}
 }
+
+func ListPrograms() {
+	getPrograms()
+
+}
