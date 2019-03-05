@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -61,12 +62,19 @@ type Series struct {
 
 // Seriesをダウンロード
 func (s Series) download() (err error) {
+	var wg sync.WaitGroup
 	for _, episode := range s.Episodes {
-		err := episode.download()
-		if err != nil {
-			return err
-		}
+		wg.Add(1)
+		go func(ep Episode) {
+			defer wg.Done()
+			err := ep.download()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}(episode)
+		time.Sleep(100 * time.Millisecond)
 	}
+	wg.Wait()
 	return nil
 }
 
