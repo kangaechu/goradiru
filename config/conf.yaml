@@ -1,5 +1,5 @@
 ProgDir: ./prog
-FileType: mp4
+FileType: m4a
 DownloadedHistoryConfFile: config/downloaded.yaml
 Programs:
   - Name: カルチャーラジオ 科学と人間

@@ -101,10 +101,10 @@ type Episode struct {
 // Episodeをダウンロード
 func (e *Episode) download(wg *sync.WaitGroup, semaphore *chan int, dps *DownloadedPrograms) (err error) {
 	if dps.isAlreadyDownloaded(e) {
-		log.Printf("download skipped %s_%s_%s", e.Program.Title, e.Series.Title, e.Title)
+		log.Printf("download skipped %s", fmtTitle(e))
 	} else {
 		*semaphore <- 1
-		log.Printf("download started %s_%s_%s", e.Program.Title, e.Series.Title, e.Title)
+		log.Printf("download started %s", fmtTitle(e))
 
 		err = downloadEpisode(e)
 		if err != nil {
@@ -112,7 +112,7 @@ func (e *Episode) download(wg *sync.WaitGroup, semaphore *chan int, dps *Downloa
 		}
 		dps.addDownloadedEpisode(e)
 		<-*semaphore
-		log.Printf("download completed %s_%s_%s", e.Program.Title, e.Series.Title, e.Title)
+		log.Printf("download completed %s", fmtTitle(e))
 	}
 	return nil
 }

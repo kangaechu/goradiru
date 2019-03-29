@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 func downloadEpisode(episode *Episode) (err error) {
@@ -103,13 +104,7 @@ func getM3u8MasterPlaylist(m3u8FilePath string) string {
 //　出力ファイル名のフルパスを返す
 func fmtFileName(episode *Episode, baseDir string, fileType string) string {
 	dirname := filepath.Join(".", baseDir)
-	var filename string
-	if episode.Series.Title == "" {
-		filename = episode.Program.Title + "_" + episode.Title + "." + fileType
-	} else {
-		filename = episode.Program.Title + "_" + episode.Series.Title + "_" + episode.Title + "." + fileType
-
-	}
+	filename := fmtTitle(episode) + "." + fileType
 	return filepath.Join(dirname, filename)
 }
 
@@ -130,10 +125,31 @@ func isWritableDir(filename string) bool {
 }
 
 func generateMetadata(episode *Episode) (metadata []string) {
+	title := fmtTitle(episode)
 	metadata = []string{
-		"-metadata", "title=" + episode.Title,
+		"-metadata", "title=" + title,
 		"-metadata", "genre=radio",
 		"-metadata", "artist=NHK",
 	}
 	return metadata
+}
+
+func fmtTitle(episode *Episode) string {
+	var title string
+	// ProgramとSeriesが同じ場合は2回出力しない
+	series := episode.Series.Title
+	if episode.Program.Title == episode.Series.Title {
+		series = ""
+	}
+	if series == "" {
+		title = episode.Program.Title + "_" + episode.Title
+	} else {
+		title = episode.Program.Title + "_" + episode.Series.Title + "_" + episode.Title
+	}
+	title = strings.Replace(title, "【", " ", -1)
+	title = strings.Replace(title, "】", " ", -1)
+	title = strings.Replace(title, "“", "", -1)
+	title = strings.Replace(title, "”", "", -1)
+	title = strings.TrimSpace(title)
+	return title
 }
