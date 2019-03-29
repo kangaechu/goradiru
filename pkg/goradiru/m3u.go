@@ -28,8 +28,8 @@ func downloadEpisode(episode *Episode) (err error) {
 			return err
 		}
 	}
-	if fileType == "mp4" {
-		err = convertM3u8ToMP4(m3u8Url, episodePath, metadata)
+	if fileType == "m4a" {
+		err = convertM3u8ToM4A(m3u8Url, episodePath, metadata)
 		if err != nil {
 			return err
 		}
@@ -39,7 +39,7 @@ func downloadEpisode(episode *Episode) (err error) {
 	return nil
 }
 
-func convertM3u8ToMP4(masterM3u8Path string, filename string, metadata []string) error {
+func convertM3u8ToM4A(masterM3u8Path string, filename string, metadata []string) error {
 	f, err := newFFMPEG(masterM3u8Path)
 	if err != nil {
 		return err
@@ -62,8 +62,8 @@ func convertM3u8ToMP4(masterM3u8Path string, filename string, metadata []string)
 	return nil
 }
 
-//func convertMP4ToMP3(mp4path string, title string) error {
-//	f, err := newFFMPEG(mp4path)
+//func convertM4AToMP3(m4apath string, title string) error {
+//	f, err := newFFMPEG(m4apath)
 //	if err != nil {
 //		return err
 //	}
