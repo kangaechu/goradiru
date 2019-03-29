@@ -3,7 +3,6 @@ package goradiru
 import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"log"
 	"os"
 	"sort"
 )
@@ -35,7 +34,6 @@ func LoadDownloadedPrograms(downloadedHistoryConfFile string) (dps *DownloadedPr
 		if err != nil {
 			panic("error on reading downloaded history")
 		}
-		log.Println("READ unlocked")
 	}
 	return dps
 }
