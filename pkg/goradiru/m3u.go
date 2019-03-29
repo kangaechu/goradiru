@@ -2,13 +2,12 @@ package goradiru
 
 import (
 	"errors"
+	"github.com/grafov/m3u8"
 	"golang.org/x/sys/unix"
 	"log"
 	"net/http"
 	"os"
 	"path/filepath"
-
-	"github.com/grafov/m3u8"
 )
 
 func downloadEpisode(episode *Episode) (err error) {

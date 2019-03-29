@@ -4,17 +4,18 @@ package goradiru
 func Download() {
 	config := GetConfig()
 
-	GetDownloadedPrograms()
+	dps := LoadDownloadedPrograms(config.DownloadedHistoryConfFile)
 	for _, program := range config.Programs {
 		program, err := CreateProgram(program.Url)
 		if err != nil {
 			panic(err)
 		}
-		err = program.Download()
+		err = program.Download(dps)
 		if err != nil {
 			panic(err)
 		}
 	}
+	dps.Save()
 }
 
 func ListPrograms() {

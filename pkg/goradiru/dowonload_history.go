@@ -3,31 +3,9 @@ package goradiru
 import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"log"
 	"os"
 )
-
-// シングルトン
-var sharedDownloaded = &DownloadedPrograms{ /* 初期化 */ }
-
-func GetDownloadedPrograms() (dps *DownloadedPrograms) {
-	if dps == nil {
-		err := Load()
-		if err != nil {
-			panic("error on reading downloaded history")
-		}
-	}
-	return sharedDownloaded
-}
-
-func Load() (err error) {
-	config := GetConfig()
-	dps, err := loadYaml(config.DownloadedHistoryConfFile)
-	if err != nil {
-		return err
-	}
-	sharedDownloaded = &dps
-	return nil
-}
 
 type DownloadedPrograms []DownloadedProgram
 
@@ -38,22 +16,54 @@ type DownloadedProgram struct {
 	EpisodeTitle string `yaml:"EpisodeTitle"`
 }
 
-func loadYaml(configFile string) (dps DownloadedPrograms, err error) {
-	file, err := os.Open(configFile)
-	defer file.Close()
-	if err != nil {
-		// ファイルがない場合は空のDownloadedProgramsを返す
-		return dps, nil
+func LoadDownloadedPrograms(downloadedHistoryConfFile string) (dps *DownloadedPrograms) {
+	if dps == nil {
+		var err error
+		file, err := os.Open(downloadedHistoryConfFile)
+		defer file.Close()
+		if err != nil {
+			// ファイルがない場合は空のDownloadedProgramsを返す
+			dps = new(DownloadedPrograms)
+			return dps
+		}
+		readBytes, err := ioutil.ReadAll(file)
+		if err != nil {
+			panic("error on reading downloaded history")
+		}
+		err = yaml.Unmarshal(readBytes, &dps)
+		if err != nil {
+			panic("error on reading downloaded history")
+		}
+		log.Println("READ unlocked")
 	}
-	readBytes, err := ioutil.ReadAll(file)
+	return dps
+}
+
+func (dps DownloadedPrograms) Save() error {
+	config := GetConfig()
+
+	file, err := os.OpenFile(config.DownloadedHistoryConfFile, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
-		return dps, err
+		return err
 	}
-	err = yaml.Unmarshal(readBytes, &dps)
+	bytesYaml, err := yaml.Marshal(dps)
 	if err != nil {
-		return dps, err
+		return err
 	}
-	return dps, nil
+	_, err = file.Write(bytesYaml)
+	if err != nil {
+		return err
+	}
+	err = file.Sync()
+	if err != nil {
+		return err
+	}
+
+	err = file.Close()
+	if err != nil {
+		return err
+	}
+	return nil
 
 }
 
@@ -68,25 +78,11 @@ func (dps DownloadedPrograms) isAlreadyDownloaded(episode *Episode) bool {
 }
 
 // Downloadされたものに追加する
-func (dps *DownloadedPrograms) addDownloadedEpisode(episode *Episode) (err error) {
-	config := GetConfig()
-	*dps = append(*dps, DownloadedProgram{episode.Program.Id, episode.Program.Title, episode.Id, episode.Title})
-	// open yaml file for write
-	file, err := os.OpenFile(config.DownloadedHistoryConfFile, os.O_RDWR|os.O_CREATE, 0755)
-	if err != nil {
-		return err
-	}
-	bytesYaml, err := yaml.Marshal(dps)
-	if err != nil {
-		return err
-	}
-	_, err = file.Write(bytesYaml)
-	if err != nil {
-		return err
-	}
-	err = file.Close()
-	if err != nil {
-		return err
-	}
-	return nil
+func (dps *DownloadedPrograms) addDownloadedEpisode(episode *Episode) {
+	*dps = append(*dps, DownloadedProgram{
+		episode.Program.Id,
+		episode.Program.Title,
+		episode.Id,
+		episode.Title,
+	})
 }

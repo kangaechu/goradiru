@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -42,13 +43,19 @@ type Program struct {
 }
 
 // Programをダウンロード
-func (p Program) Download() (err error) {
+func (p Program) Download(dps *DownloadedPrograms) (err error) {
+	cpus := runtime.NumCPU() // CPUの数
+	log.Println("Parallels: ", cpus)
+	semaphore := make(chan int, cpus)
 	for _, series := range p.Series {
-		err := series.download()
+		var wg sync.WaitGroup
+		err := series.download(&wg, &semaphore, dps)
 		if err != nil {
 			return err
 		}
+		wg.Wait()
 	}
+
 	return nil
 }
 
@@ -61,20 +68,20 @@ type Series struct {
 }
 
 // Seriesをダウンロード
-func (s Series) download() (err error) {
-	var wg sync.WaitGroup
+func (s Series) download(wg *sync.WaitGroup, semaphore *chan int, dps *DownloadedPrograms) (err error) {
 	for _, episode := range s.Episodes {
 		wg.Add(1)
+
 		go func(ep Episode) {
 			defer wg.Done()
-			err := ep.download()
+			err := ep.download(wg, semaphore, dps)
 			if err != nil {
 				log.Fatal(err)
 			}
+
 		}(episode)
-		time.Sleep(100 * time.Millisecond)
+		//time.Sleep(100 * time.Millisecond) // 順序よく並ぶように入れている
 	}
-	wg.Wait()
 	return nil
 }
 
@@ -92,22 +99,20 @@ type Episode struct {
 }
 
 // Episodeをダウンロード
-func (e *Episode) download() (err error) {
-	dp := GetDownloadedPrograms()
-	if dp.isAlreadyDownloaded(e) {
+func (e *Episode) download(wg *sync.WaitGroup, semaphore *chan int, dps *DownloadedPrograms) (err error) {
+	if dps.isAlreadyDownloaded(e) {
 		log.Printf("download skipped %s_%s_%s", e.Program.Title, e.Series.Title, e.Title)
 	} else {
+		*semaphore <- 1
 		log.Printf("download started %s_%s_%s", e.Program.Title, e.Series.Title, e.Title)
 
-		err = downloadEpisode(e)
-		if err != nil {
-			return err
-		}
+		//err = downloadEpisode(e)
+		//if err != nil {
+		//	return err
+		//}
+		dps.addDownloadedEpisode(e)
+		<-*semaphore
 		log.Printf("download completed %s_%s_%s", e.Program.Title, e.Series.Title, e.Title)
-		err = dp.addDownloadedEpisode(e)
-		if err != nil {
-			return err
-		}
 	}
 	return nil
 }
