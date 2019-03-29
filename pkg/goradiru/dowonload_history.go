@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"sort"
 )
 
 type DownloadedPrograms []DownloadedProgram
@@ -46,6 +47,7 @@ func (dps DownloadedPrograms) Save() error {
 	if err != nil {
 		return err
 	}
+	sort.Sort(ByEpisodeID(dps))
 	bytesYaml, err := yaml.Marshal(dps)
 	if err != nil {
 		return err
@@ -85,4 +87,18 @@ func (dps *DownloadedPrograms) addDownloadedEpisode(episode *Episode) {
 		episode.Id,
 		episode.Title,
 	})
+}
+
+type ByEpisodeID DownloadedPrograms
+
+func (a ByEpisodeID) Len() int      { return len(a) }
+func (a ByEpisodeID) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a ByEpisodeID) Less(i, j int) bool {
+	if a[i].ProgramID < a[j].ProgramID {
+		return true
+	}
+	if a[i].ProgramID > a[j].ProgramID {
+		return false
+	}
+	return a[i].EpisodeID < a[j].EpisodeID
 }
