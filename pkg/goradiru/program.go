@@ -80,7 +80,7 @@ func (s Series) download(wg *sync.WaitGroup, semaphore *chan int, dps *Downloade
 			}
 
 		}(episode)
-		//time.Sleep(100 * time.Millisecond) // 順序よく並ぶように入れている
+		time.Sleep(100 * time.Millisecond) // 順序よく並ぶように入れている
 	}
 	return nil
 }
@@ -106,10 +106,10 @@ func (e *Episode) download(wg *sync.WaitGroup, semaphore *chan int, dps *Downloa
 		*semaphore <- 1
 		log.Printf("download started %s_%s_%s", e.Program.Title, e.Series.Title, e.Title)
 
-		//err = downloadEpisode(e)
-		//if err != nil {
-		//	return err
-		//}
+		err = downloadEpisode(e)
+		if err != nil {
+			return err
+		}
 		dps.addDownloadedEpisode(e)
 		<-*semaphore
 		log.Printf("download completed %s_%s_%s", e.Program.Title, e.Series.Title, e.Title)
