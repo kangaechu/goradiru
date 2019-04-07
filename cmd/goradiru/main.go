@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/kangaechu/goradiru/pkg/goradiru"
+	"github.com/kangaechu/goradiru"
 	"github.com/spf13/viper"
 )
 

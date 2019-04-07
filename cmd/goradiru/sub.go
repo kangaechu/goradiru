@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/kangaechu/goradiru/pkg/goradiru"
+	"github.com/kangaechu/goradiru"
 	"github.com/spf13/cobra"
 )
 
