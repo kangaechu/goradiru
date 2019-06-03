@@ -3,7 +3,9 @@ package goradiru
 import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"log"
 	"os"
+	"path/filepath"
 	"sort"
 )
 
@@ -41,7 +43,13 @@ func LoadDownloadedPrograms(downloadedHistoryConfFile string) (dps *DownloadedPr
 func (dps DownloadedPrograms) Save() error {
 	config := GetConfig()
 
-	file, err := os.OpenFile(config.DownloadedHistoryConfFile, os.O_RDWR|os.O_CREATE, 0755)
+	// スクリプトのディレクトリを取得
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	file, err := os.OpenFile(filepath.Join(dir, config.DownloadedHistoryConfFile), os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		return err
 	}
