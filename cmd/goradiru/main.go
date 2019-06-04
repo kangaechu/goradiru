@@ -30,5 +30,11 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("error on parsing config %s \n", err))
 	}
+	// スクリプトのディレクトリを取得
+	dir, err = filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		log.Fatal(err)
+	}
+	config.DownloadedHistoryConfFile = filepath.Join(dir, config.DownloadedHistoryConfFile)
 	execute()
 }
