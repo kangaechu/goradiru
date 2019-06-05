@@ -1,8 +1,6 @@
-ProgDir: ./prog
+ProgDir: ./prog # 実行ファイルからの相対パスを指定
 FileType: m4a
 DownloadedHistoryConfFile: config/downloaded.yaml
 Programs:
   - Name: カルチャーラジオ 科学と人間
     Url: https://www.nhk.or.jp/radioondemand/json/3065/bangumi_3065_01.json
-  - Name: カルチャーラジオ 文学の世界
-    Url: https://www.nhk.or.jp/radioondemand/json/1929/bangumi_1929_01.json

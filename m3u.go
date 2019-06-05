@@ -24,7 +24,7 @@ func downloadEpisode(episode *Episode) (err error) {
 	// 書き込み先ディレクトリの確認
 	episodePath := fmtFileName(episode, progDir, fileType)
 	if !isWritableDir(episodePath) {
-		err := os.MkdirAll(filepath.Dir(episodePath), 0755)
+		err := os.MkdirAll(progDir, 0755)
 		if err != nil {
 			return err
 		}
@@ -103,9 +103,8 @@ func getM3u8MasterPlaylist(m3u8FilePath string) string {
 
 //　出力ファイル名のフルパスを返す
 func fmtFileName(episode *Episode, baseDir string, fileType string) string {
-	dirname := filepath.Join(".", baseDir)
 	filename := fmtTitle(episode) + "." + fileType
-	return filepath.Join(dirname, filename)
+	return filepath.Join(baseDir, filename)
 }
 
 // ファイル・ディレクトリの存在・書き込み確認
