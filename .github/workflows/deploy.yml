@@ -1,0 +1,161 @@
+name: Release Go Project Package
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+    - name: Get dependencies
+      run: go get -v -t -d ./...
+
+    - name: Test code
+      run: go test -v .
+
+  setup-release:
+    name: Setup release
+    needs: test # This workflow is executed after completed 'test' job
+    runs-on: ubuntu-latest
+    steps:
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+    - name: Get url to upload to release from output
+      env:
+        url: ${{ steps.create_release.outputs.upload_url }}
+      run: |
+        mkdir artifact
+        echo $url > artifact/url.txt
+
+    - name: Upload artifact to share url with other jobs
+      uses: actions/upload-artifact@v1
+      with:
+        name: artifact
+        path: artifact/url.txt
+
+  release-code:
+    name: Release Source Code
+    needs: setup-release
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download artifact to get url to upload to release
+      uses: actions/download-artifact@v1
+      with:
+        name: artifact
+
+    - name: Get url to upload to release from artifact
+      id: get_url
+      run: |
+        url=$(cat artifact/url.txt)
+        echo "##[set-output name=upload_url;]$url"
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+    - name: Pack source code in zip file
+      run: |
+        mkdir dist
+        ls -la
+        cp *.go dist/
+        zip -j -r release dist
+
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_url.outputs.upload_url }}
+        asset_path: release.zip
+        asset_name: source.zip
+        asset_content_type: application/zip
+
+  release-pkg:
+    name: Release package
+    needs: setup-release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: [darwin, linux_amd64, windows, linux_arm]
+        include:
+        - os: darwin
+          goos: darwin
+          arch: amd64
+        - os: linux_amd64
+          goos: linux
+          arch: amd64
+        - os: windows
+          goos: windows
+          arch: amd64
+        - os: linux_arm # raspberry pi
+          goos: linux
+          arch: arm
+          arm: 6
+
+    steps:
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+    # get tag version
+    # https://github.community/t5/GitHub-Actions/How-to-get-just-the-tag-name/m-p/32167#M1027
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
+
+    - name: Get dependencies
+      run: go get -v -t -d ./...
+
+    - name: Build
+      env:
+        goos: ${{ matrix.goos }}
+        goarch: ${{ matrix.arch }}
+        goarm: ${{ matrix.arm }}
+      run: |
+        mkdir dist
+        GOOS=$goos GOARCH=$goarch GOARM=$goarm go build -v -ldflags="-X main.version=${{ steps.get_version.outputs.VERSION }} -X main.revision=$(git rev-parse --short HEAD) -s -w -extldflags \"-static\"" -o dist/${{ github.event.repository.name }} ./cmd/${{ github.event.repository.name }}
+        zip -j -r release dist
+
+    - name: Download artifact to get url to upload to release
+      uses: actions/download-artifact@v1
+      with:
+        name: artifact
+
+    - name: Get url to upload to release from artifact
+      id: get_url
+      run: |
+        url=$(cat artifact/url.txt)
+        echo "##[set-output name=upload_url;]$url"
+
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1.0.1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.get_url.outputs.upload_url }}
+        asset_path: release.zip
+        # ${{ steps.get_version.outputs.VERSION }} represents tag version
+        asset_name: ${{ github.event.repository.name }}_${{ steps.get_version.outputs.VERSION }}_${{ matrix.os }}.zip
+        asset_content_type: application/zip
