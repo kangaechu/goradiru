@@ -2,7 +2,7 @@ module github.com/kangaechu/goradiru
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
-	github.com/grafov/m3u8 v0.6.1
+	github.com/grafov/m3u8 v0.11.1
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.3.1
