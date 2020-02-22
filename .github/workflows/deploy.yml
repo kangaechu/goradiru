@@ -94,16 +94,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os: [darwin, linux_amd64, windows, linux_arm]
+        os: [darwin, linux_amd64, linux_arm]
         include:
         - os: darwin
           goos: darwin
           arch: amd64
         - os: linux_amd64
           goos: linux
-          arch: amd64
-        - os: windows
-          goos: windows
           arch: amd64
         - os: linux_arm # raspberry pi
           goos: linux
