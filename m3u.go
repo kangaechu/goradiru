@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 )
 
@@ -135,20 +136,34 @@ func generateMetadata(episode *Episode) (metadata []string) {
 
 func fmtTitle(episode *Episode) string {
 	var title string
+	// program series episode
+	// 全部違う : こども科学電話相談
+	// seriesがnull, programがepisodeに含まれている : カルチャーラジオ 東京03
 	// ProgramとSeriesが同じ場合は2回出力しない
+	programTitle := episode.Program.Title
+	seriesTitle := episode.Series.Title
+	episodeTitle := episode.Title
+	episodeDate := episode.Start.Format("20060102-1504")
+
 	series := episode.Series.Title
-	if episode.Program.Title == episode.Series.Title {
-		series = ""
-	}
 	if series == "" {
-		title = episode.Program.Title + "_" + episode.Title
+		if programTitle == episodeTitle {
+			title = episodeTitle + " " + episodeDate
+		} else if strings.Contains(episodeTitle, programTitle) {
+			title = episodeTitle
+		} else {
+			title = programTitle + " " + episodeTitle
+		}
 	} else {
-		title = episode.Program.Title + "_" + episode.Series.Title + "_" + episode.Title
+		title = programTitle + " " + seriesTitle + " " + episodeTitle
 	}
+	title = strings.Replace(title, "　", " ", -1)
 	title = strings.Replace(title, "【", " ", -1)
 	title = strings.Replace(title, "】", " ", -1)
 	title = strings.Replace(title, "“", "", -1)
 	title = strings.Replace(title, "”", "", -1)
+	trimSpace := regexp.MustCompile(`\s+`)
+	title = trimSpace.ReplaceAllString(title, " ")
 	title = strings.TrimSpace(title)
 	return title
 }
