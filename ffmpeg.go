@@ -1,6 +1,7 @@
 package goradiru
 
 import (
+	"os"
 	"os/exec"
 )
 
@@ -15,7 +16,9 @@ func newFFMPEG(inputFilePath string) (*ffmpeg, error) {
 	}
 
 	/* #nosec */
-	return &ffmpeg{exec.Command(cmdPath, "-i", inputFilePath)}, nil
+	cmd := exec.Command(cmdPath, "-i", inputFilePath)
+	cmd.Env = os.Environ()
+	return &ffmpeg{cmd}, nil
 }
 
 func (f *ffmpeg) setArgs(args ...string) {
