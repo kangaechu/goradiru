@@ -2,10 +2,7 @@ package goradiru
 
 import (
 	"errors"
-	"github.com/grafov/m3u8"
 	"golang.org/x/sys/unix"
-	"log"
-	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -15,7 +12,7 @@ import (
 func downloadEpisode(episode *Episode) (err error) {
 	config := GetConfig()
 
-	m3u8Url := getM3u8MasterPlaylist(episode.Url)
+	m3u8Url := episode.Url
 
 	progDir := config.ProgDir
 	fileType := config.FileType
@@ -62,44 +59,6 @@ func convertM3u8ToM4A(masterM3u8Path string, filename string, metadata []string)
 		return err
 	}
 	return nil
-}
-
-//func convertM4AToMP3(m4apath string, title string) error {
-//	f, err := newFFMPEG(m4apath)
-//	if err != nil {
-//		return err
-//	}
-//
-//	f.setArgs(
-//		"-y",
-//		"-acodec", "libmp3lame",
-//		"-ab", "256k",
-//	)
-//
-//	var name = title + ".mp3"
-//	fmt.Println(name)
-//
-//	_, err = f.execute(name)
-//	return err
-//}
-
-func getM3u8MasterPlaylist(m3u8FilePath string) string {
-	resp, err := http.Get(m3u8FilePath) // nolint: gosec
-	if err != nil {
-		log.Fatal(err)
-	}
-	f := resp.Body
-
-	p, t, err := m3u8.DecodeFrom(f, true)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	if t != m3u8.MASTER {
-		log.Fatalf("not support file type [%v]", t)
-	}
-
-	return p.(*m3u8.MasterPlaylist).Variants[0].URI
 }
 
 //　出力ファイル名のフルパスを返す
