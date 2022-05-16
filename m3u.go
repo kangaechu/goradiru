@@ -50,6 +50,7 @@ func convertM3u8ToM4A(masterM3u8Path string, filename string, metadata []string)
 		"-c", "copy",
 		"-y",
 		"-bsf:a", "aac_adtstoasc",
+		"-http_seekable", "0",
 	)
 
 	f.setArgs(metadata...)
