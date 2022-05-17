@@ -26,3 +26,4 @@
 config/downloaded.yaml
 *.m4a
 *.mp3
+dist/
