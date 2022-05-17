@@ -2,6 +2,7 @@ package goradiru
 
 import (
 	"errors"
+	"fmt"
 	"golang.org/x/sys/unix"
 	"os"
 	"path/filepath"
@@ -39,24 +40,23 @@ func downloadEpisode(episode *Episode) (err error) {
 }
 
 func convertM3u8ToM4A(masterM3u8Path string, filename string, metadata []string) error {
-	f, err := newFFMPEG(masterM3u8Path)
+	f, err := newFFMPEG()
 	if err != nil {
 		return err
 	}
 
 	f.setArgs(
-		"-protocol_whitelist", "file,crypto,http,https,tcp,tls",
-		"-movflags", "faststart",
-		"-c", "copy",
-		"-y",
-		"-bsf:a", "aac_adtstoasc",
-		"-http_seekable", "0",
+		"-y", "-http_seekable", "0",
+		"-i", masterM3u8Path,
+		"-absf", "aac_adtstoasc",
+		"-acodec", "copy",
 	)
 
 	f.setArgs(metadata...)
 
-	_, err = f.execute(filename)
+	msg, err := f.execute(filename)
 	if err != nil {
+		fmt.Println(string(msg))
 		return err
 	}
 	return nil

@@ -1,7 +1,6 @@
 module github.com/kangaechu/goradiru
 
 require (
-	github.com/grafov/m3u8 v0.11.1
 	github.com/spf13/cobra v1.4.0
 	github.com/spf13/viper v1.11.0
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad
@@ -10,6 +9,7 @@ require (
 
 require (
 	github.com/fsnotify/fsnotify v1.5.1 // indirect
+	github.com/grafov/m3u8 v0.11.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
