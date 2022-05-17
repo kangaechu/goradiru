@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-type AvailableProgramJson struct {
+type AvailableProgramJSON struct {
 	AvailablePrograms []struct {
 		SiteID          string `json:"site_id"`
 		ProgramName     string `json:"program_name"`
@@ -30,10 +30,10 @@ type AvailableProgramJson struct {
 }
 
 func getAvailablePrograms() error {
-	indexUrl := "https://www.nhk.or.jp/radioondemand/json/index_v3/index.json"
-	availableProgramJson := AvailableProgramJson{}
+	indexURL := "https://www.nhk.or.jp/radioondemand/json/index_v3/index.json"
+	availableProgramJSON := AvailableProgramJSON{}
 
-	res, err := http.Get(indexUrl)
+	res, err := http.Get(indexURL)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -47,13 +47,13 @@ func getAvailablePrograms() error {
 		return err
 	}
 
-	if err := json.Unmarshal(jsonBytes, &availableProgramJson); err != nil {
+	if err := json.Unmarshal(jsonBytes, &availableProgramJSON); err != nil {
 		return err
 	}
 
-	for _, p := range availableProgramJson.AvailablePrograms {
+	for _, p := range availableProgramJSON.AvailablePrograms {
 		fmt.Println("  - Name:", p.ProgramName)
-		fmt.Println("    Url:", p.DetailJSON)
+		fmt.Println("    URL:", p.DetailJSON)
 	}
 	return nil
 }

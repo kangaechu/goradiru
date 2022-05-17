@@ -2,8 +2,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/kangaechu/goradiru"
 	"os"
+
+	"github.com/kangaechu/goradiru"
 )
 
 var version string

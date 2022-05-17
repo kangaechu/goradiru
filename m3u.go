@@ -3,17 +3,18 @@ package goradiru
 import (
 	"errors"
 	"fmt"
-	"golang.org/x/sys/unix"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"golang.org/x/sys/unix"
 )
 
 func downloadEpisode(episode *Episode) (err error) {
 	config := GetConfig()
 
-	m3u8Url := episode.Url
+	m3u8URL := episode.URL
 
 	progDir := config.ProgDir
 	fileType := config.FileType
@@ -29,7 +30,7 @@ func downloadEpisode(episode *Episode) (err error) {
 		}
 	}
 	if fileType == "m4a" {
-		err = convertM3u8ToM4A(m3u8Url, episodePath, metadata)
+		err = convertM3u8ToM4A(m3u8URL, episodePath, metadata)
 		if err != nil {
 			return err
 		}

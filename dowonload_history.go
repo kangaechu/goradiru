@@ -1,10 +1,11 @@
 package goradiru
 
 import (
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"sort"
+
+	"gopkg.in/yaml.v2"
 )
 
 type DownloadedPrograms []DownloadedProgram
@@ -20,7 +21,7 @@ func LoadDownloadedPrograms(downloadedHistoryConfFile string) (dps *DownloadedPr
 	if dps == nil {
 		var err error
 		file, err := os.Open(downloadedHistoryConfFile)
-		defer file.Close()
+		defer file.Close() //nolint:errcheck
 		if err != nil {
 			// ファイルがない場合は空のDownloadedProgramsを返す
 			dps = new(DownloadedPrograms)
@@ -70,7 +71,7 @@ func (dps DownloadedPrograms) Save() error {
 // すでにダウンロードされたものか確認する
 func (dps DownloadedPrograms) isAlreadyDownloaded(episode *Episode) bool {
 	for _, dp := range dps {
-		if dp.EpisodeID == episode.Id {
+		if dp.EpisodeID == episode.ID {
 			return true
 		}
 	}
@@ -80,9 +81,9 @@ func (dps DownloadedPrograms) isAlreadyDownloaded(episode *Episode) bool {
 // Downloadされたものに追加する
 func (dps *DownloadedPrograms) addDownloadedEpisode(episode *Episode) {
 	*dps = append(*dps, DownloadedProgram{
-		episode.Program.Id,
+		episode.Program.ID,
 		episode.Program.Title,
-		episode.Id,
+		episode.ID,
 		episode.Title,
 	})
 }

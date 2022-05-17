@@ -2,29 +2,30 @@ package goradiru
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/spf13/viper"
 )
 
-type config struct {
+type Config struct {
 	ProgDir                   string `mapstructure:"ProgDir"`
 	FileType                  string `mapstructure:"FileType"`
 	DownloadedHistoryConfFile string `mapstructure:"DownloadedHistoryConfFile"`
 	Programs                  []struct {
 		Name string `mapstructure:"Name"`
-		Url  string `mapstructure:"Url"`
+		URL  string `mapstructure:"URL"`
 	} `mapstructure:"Programs"`
 }
 
-var sharedInstance = &config{ /* 初期化 */ }
+var sharedInstance = &Config{ /* 初期化 */ }
 
-func GetConfig() *config {
+func GetConfig() *Config {
 	return sharedInstance
 }
 
-func LoadConfig() *config {
+func LoadConfig() *Config {
 	// スクリプトのディレクトリを取得
 	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
@@ -35,13 +36,13 @@ func LoadConfig() *config {
 	viper.AddConfigPath(filepath.Join(dir, "config")) // 設定ファイルのディレクトリ名
 	err = viper.ReadInConfig()
 	if err != nil {
-		panic(fmt.Errorf("error on reading config: %s \n", err))
+		panic(fmt.Errorf("error on reading config: %s", err))
 	}
 	config := GetConfig()
 
 	err = viper.Unmarshal(config)
 	if err != nil {
-		panic(fmt.Errorf("error on parsing config %s \n", err))
+		panic(fmt.Errorf("error on parsing config %s", err))
 	}
 	config.ProgDir = filepath.Join(dir, config.ProgDir)
 	config.DownloadedHistoryConfFile = filepath.Join(dir, config.DownloadedHistoryConfFile)
