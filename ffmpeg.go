@@ -9,14 +9,14 @@ type ffmpeg struct {
 	*exec.Cmd
 }
 
-func newFFMPEG(inputFilePath string) (*ffmpeg, error) {
+func newFFMPEG() (*ffmpeg, error) {
 	cmdPath, err := exec.LookPath("ffmpeg")
 	if err != nil {
 		return nil, err
 	}
 
 	/* #nosec */
-	cmd := exec.Command(cmdPath, "-i", inputFilePath)
+	cmd := exec.Command(cmdPath)
 	cmd.Env = os.Environ()
 	return &ffmpeg{cmd}, nil
 }
