@@ -15,7 +15,7 @@ type Config struct {
 	DownloadedHistoryConfFile string `mapstructure:"DownloadedHistoryConfFile"`
 	Programs                  []struct {
 		Name string `mapstructure:"Name"`
-		URL  string `mapstructure:"URL"`
+		URL  string `mapstructure:"Url"`
 	} `mapstructure:"Programs"`
 }
 
