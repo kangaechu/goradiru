@@ -6,7 +6,7 @@ func Download() {
 
 	dps := LoadDownloadedPrograms(config.DownloadedHistoryConfFile)
 	for _, program := range config.Programs {
-		program, err := CreateProgram(program.Url)
+		program, err := CreateProgram(program.URL)
 		if err != nil {
 			panic(err)
 		}
@@ -15,7 +15,7 @@ func Download() {
 			panic(err)
 		}
 	}
-	dps.Save()
+	dps.Save() //nolint:errcheck
 }
 
 func ListPrograms() {

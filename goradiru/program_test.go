@@ -109,7 +109,7 @@ func TestCreateProgram(t *testing.T) {
         }]
     }
 }	`
-	program, err := createProgramFromJsonBytes([]byte(jsonStr))
+	program, err := createProgramFromJSONBytes([]byte(jsonStr))
 	if err != nil {
 		t.Fatalf("failed test %#v", err)
 	}

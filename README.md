@@ -38,7 +38,7 @@ $ goradiru pg
 
 ### 取得対象を設定ファイルに追加
 
-`config/conf.yaml` に取得したいURLを記述
+`config/conf.yaml` に取得したいUrlを記述
 
 ```yaml
 ProgDir: ./prog

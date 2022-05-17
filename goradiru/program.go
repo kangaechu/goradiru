@@ -11,8 +11,8 @@ import (
 	"time"
 )
 
-// ProgramJson はJSONパース用の型
-type ProgramJson struct {
+// ProgramJSON はJSONパース用の型
+type ProgramJSON struct {
 	Main struct {
 		SiteID      string `json:"site_id"`
 		ProgramName string `json:"program_name"`
@@ -37,7 +37,7 @@ type Programs []Program
 
 // Program は番組
 type Program struct {
-	Id     string   // 番組ID
+	ID     string   // 番組ID
 	Title  string   // 番組名
 	Series []Series // シリーズ
 }
@@ -61,7 +61,7 @@ func (p Program) Download(dps *DownloadedPrograms) (err error) {
 
 // Series は 番組のシリーズ
 type Series struct {
-	Id       string    // ID
+	ID       string    // ID
 	Title    string    // シリーズ名
 	SubTitle string    // サブタイトル
 	Episodes []Episode // エピソード
@@ -87,10 +87,10 @@ func (s Series) download(wg *sync.WaitGroup, semaphore *chan int, dps *Downloade
 
 // Episode シリーズのエピソード（各話）
 type Episode struct {
-	Id       string    // ID
+	ID       string    // ID
 	Title    string    // エピソード名
 	SubTitle string    // サブタイトル
-	Url      string    // url
+	URL      string    // url
 	Station  string    // 放送局 (aa_vinfo2の , より前)
 	Start    time.Time // 開始時刻 (aa_vinfo4 の _ より前)
 	End      time.Time // 終了時刻 (aa_vinfo4 の _ より後)
@@ -118,8 +118,8 @@ func (e *Episode) download(wg *sync.WaitGroup, semaphore *chan int, dps *Downloa
 }
 
 // download は番組情報をダウンロードします
-func download(programUrl string) (jsonBytes []byte, err error) {
-	res, err := http.Get(programUrl) // nolint: gosec
+func download(programURL string) (jsonBytes []byte, err error) {
+	res, err := http.Get(programURL) // nolint: gosec
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -136,16 +136,16 @@ func download(programUrl string) (jsonBytes []byte, err error) {
 }
 
 // 番組情報のJSONからProgramを生成
-func createProgramFromJsonBytes(jsonBytes []byte) (program Program, err error) {
-	var programJson ProgramJson
+func createProgramFromJSONBytes(jsonBytes []byte) (program Program, err error) {
+	var programJSON ProgramJSON
 
 	// JSON parse
-	if err := json.Unmarshal(jsonBytes, &programJson); err != nil {
+	if err := json.Unmarshal(jsonBytes, &programJSON); err != nil {
 		return program, err
 	}
 
-	series := make([]Series, len(programJson.Main.DetailList))
-	for si, s := range programJson.Main.DetailList {
+	series := make([]Series, len(programJSON.Main.DetailList))
+	for si, s := range programJSON.Main.DetailList {
 
 		var episodes = make([]Episode, len(s.FileList))
 		for ei, e := range s.FileList {
@@ -169,19 +169,19 @@ func createProgramFromJsonBytes(jsonBytes []byte) (program Program, err error) {
 		}
 		series[si] = Series{s.HeadlineID, s.Headline, s.HeadlineSub, episodes}
 	}
-	program.Id = programJson.Main.SiteID
-	program.Title = programJson.Main.ProgramName
+	program.ID = programJSON.Main.SiteID
+	program.Title = programJSON.Main.ProgramName
 	program.Series = series
 
 	return program, nil
 }
 
-func CreateProgram(programUrl string) (program Program, err error) {
-	jsonBytes, err := download(programUrl)
+func CreateProgram(programURL string) (program Program, err error) {
+	jsonBytes, err := download(programURL)
 	if err != nil {
 		return program, err
 	}
-	program, err = createProgramFromJsonBytes(jsonBytes)
+	program, err = createProgramFromJSONBytes(jsonBytes)
 	if err != nil {
 		return program, err
 	}
