@@ -22,7 +22,6 @@
 
 # End of https://www.gitignore.io/api/go
 
-/goradiru
 config/downloaded.yaml
 *.m4a
 *.mp3
