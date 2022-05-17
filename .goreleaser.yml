@@ -1,0 +1,28 @@
+# .goreleaser.yml
+# Build customization
+builds:
+  - binary: goradiru
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+      - arm
+    goarm:
+      - "6"
+    env:
+      - CGO_ENABLED=0
+archives:
+  - name_template: "{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - none*
+release:
+  prerelease: auto
+changelog:
+  filters:
+    exclude:
+      - Merge pull request
+      - Merge branch
+      - Update README
+      - Update CHANGELOG
