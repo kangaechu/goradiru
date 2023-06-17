@@ -63,7 +63,7 @@ func convertM3u8ToM4A(masterM3u8Path string, filename string, metadata []string)
 	return nil
 }
 
-//　出力ファイル名のフルパスを返す
+// 　出力ファイル名のフルパスを返す
 func fmtFileName(episode *Episode, baseDir string, fileType string) string {
 	filename := fmtTitle(episode) + "." + fileType
 	return filepath.Join(baseDir, filename)

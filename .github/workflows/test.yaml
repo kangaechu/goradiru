@@ -21,12 +21,6 @@ jobs:
     - uses: actions/checkout@v3
     - uses: actions/setup-go@v4
       with:
-        go-version: 1.17.8
-    - uses: actions/cache@v3
-      with:
-        path: ~/go/pkg/mod
-        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-        restore-keys: |
-          ${{ runner.os }}-go-
+        go-version-file: '.go-version'
     - name: test
       run: go test ./...

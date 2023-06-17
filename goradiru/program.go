@@ -2,7 +2,7 @@ package goradiru
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"runtime"
@@ -32,7 +32,7 @@ type ProgramJSON struct {
 	} `json:"main"`
 }
 
-// Programのリスト
+// Programs は番組の一覧
 type Programs []Program
 
 // Program は番組
@@ -42,7 +42,7 @@ type Program struct {
 	Series []Series // シリーズ
 }
 
-// Programをダウンロード
+// Download program
 func (p Program) Download(dps *DownloadedPrograms) (err error) {
 	cpus := runtime.NumCPU() // CPUの数
 	log.Println("Parallels: ", cpus)
@@ -99,7 +99,7 @@ type Episode struct {
 }
 
 // Episodeをダウンロード
-func (e *Episode) download(wg *sync.WaitGroup, semaphore *chan int, dps *DownloadedPrograms) (err error) {
+func (e *Episode) download(_ *sync.WaitGroup, semaphore *chan int, dps *DownloadedPrograms) (err error) {
 	if dps.isAlreadyDownloaded(e) {
 		log.Printf("download skipped %s", fmtTitle(e))
 	} else {
@@ -128,7 +128,7 @@ func download(programURL string) (jsonBytes []byte, err error) {
 			err = res.Body.Close()
 		}
 	}()
-	jsonBytes, err = ioutil.ReadAll(res.Body)
+	jsonBytes, err = io.ReadAll(res.Body)
 	if err != nil {
 		return jsonBytes, err
 	}
