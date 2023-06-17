@@ -99,7 +99,7 @@ type Episode struct {
 }
 
 // Episodeをダウンロード
-func (e *Episode) download(wg *sync.WaitGroup, semaphore *chan int, dps *DownloadedPrograms) (err error) {
+func (e *Episode) download(_ *sync.WaitGroup, semaphore *chan int, dps *DownloadedPrograms) (err error) {
 	if dps.isAlreadyDownloaded(e) {
 		log.Printf("download skipped %s", fmtTitle(e))
 	} else {
