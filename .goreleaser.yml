@@ -10,13 +10,9 @@ builds:
       - arm64
       - arm
     goarm:
-      - "6"
+      - "7"
     env:
       - CGO_ENABLED=0
-archives:
-  - name_template: "{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}"
-    files:
-      - none*
 release:
   prerelease: auto
 changelog:
