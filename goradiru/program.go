@@ -146,9 +146,15 @@ func createProgramFromJSONBytes(jsonBytes []byte) (program Program, err error) {
 
 	series := make([]Series, len(programJSON.Main.DetailList))
 	for si, s := range programJSON.Main.DetailList {
+		if s.HeadlineID == "" {
+			continue
+		}
 
 		var episodes = make([]Episode, len(s.FileList))
 		for ei, e := range s.FileList {
+			if e.FileID == "" {
+				continue
+			}
 			// set Station
 			station := strings.Split(e.AaVinfo2, ",")[0]
 			// set Start/End
