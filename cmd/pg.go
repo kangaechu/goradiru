@@ -11,7 +11,7 @@ var pgCmd = &cobra.Command{
 	Use:   "pg",
 	Short: "最新のプログラムを取得",
 	Long:  `最新のプログラムを取得`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		goradiru.LoadConfig()
 		goradiru.ListPrograms()
 	},

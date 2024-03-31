@@ -11,7 +11,7 @@ var dlCmd = &cobra.Command{
 	Use:   "dl",
 	Short: "指定したエピソードをダウンロード",
 	Long:  `指定したエピソードをダウンロード`,
-	Run: func(cmd *cobra.Command, args []string) {
+	Run: func(_ *cobra.Command, _ []string) {
 		goradiru.LoadConfig()
 		goradiru.Download()
 	},
