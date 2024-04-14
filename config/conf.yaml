@@ -1,4 +1,5 @@
-ProgDir: ./prog # 実行ファイルからの相対パスを指定
+---
+ProgDir: ./output
 FileType: m4a
 DownloadedHistoryConfFile: config/downloaded.yaml
 Programs:
