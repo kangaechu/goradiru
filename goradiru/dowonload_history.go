@@ -1,9 +1,10 @@
 package goradiru
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 	"sort"
+	"strconv"
 
 	"gopkg.in/yaml.v2"
 )
@@ -18,36 +19,39 @@ type DownloadedProgram struct {
 }
 
 func LoadDownloadedPrograms(downloadedHistoryConfFile string) (dps *DownloadedPrograms) {
-	if dps == nil {
-		var err error
-		file, err := os.Open(downloadedHistoryConfFile)
-		defer file.Close() //nolint:errcheck
+	var err error
+	file, err := os.Open(downloadedHistoryConfFile)
+	defer func(file *os.File) {
+		err := file.Close()
 		if err != nil {
-			// ファイルがない場合は空のDownloadedProgramsを返す
-			dps = new(DownloadedPrograms)
-			return dps
+			panic("error on closing downloaded history")
 		}
-		readBytes, err := ioutil.ReadAll(file)
-		if err != nil {
-			panic("error on reading downloaded history")
-		}
-		err = yaml.Unmarshal(readBytes, &dps)
-		if err != nil {
-			panic("error on reading downloaded history")
-		}
+	}(file)
+	if err != nil {
+		// ファイルがない場合は空のDownloadedProgramsを返す
+		dps = new(DownloadedPrograms)
+		return dps
+	}
+	readBytes, err := io.ReadAll(file)
+	if err != nil {
+		panic("error on reading downloaded history")
+	}
+	err = yaml.Unmarshal(readBytes, &dps)
+	if err != nil {
+		panic("error on reading downloaded history")
 	}
 	return dps
 }
 
-func (dps DownloadedPrograms) Save() error {
+func (dps *DownloadedPrograms) Save() error {
 	config := GetConfig()
 
 	file, err := os.OpenFile(config.DownloadedHistoryConfFile, os.O_RDWR|os.O_CREATE, 0755)
 	if err != nil {
 		return err
 	}
-	sort.Sort(ByEpisodeID(dps))
-	bytesYaml, err := yaml.Marshal(dps)
+	sort.Sort(ByEpisodeID(*dps))
+	bytesYaml, err := yaml.Marshal(*dps)
 	if err != nil {
 		return err
 	}
@@ -69,9 +73,9 @@ func (dps DownloadedPrograms) Save() error {
 }
 
 // すでにダウンロードされたものか確認する
-func (dps DownloadedPrograms) isAlreadyDownloaded(episode *Episode) bool {
-	for _, dp := range dps {
-		if dp.EpisodeID == episode.ID {
+func (dps *DownloadedPrograms) isAlreadyDownloaded(episode *Episode) bool {
+	for _, dp := range *dps {
+		if dp.EpisodeID == strconv.Itoa(episode.ID) {
 			return true
 		}
 	}
@@ -79,12 +83,12 @@ func (dps DownloadedPrograms) isAlreadyDownloaded(episode *Episode) bool {
 }
 
 // Downloadされたものに追加する
-func (dps *DownloadedPrograms) addDownloadedEpisode(episode *Episode) {
+func (dps *DownloadedPrograms) addDownloadedEpisode(episode *Episode, programID string, programTitle string) {
 	*dps = append(*dps, DownloadedProgram{
-		episode.Program.ID,
-		episode.Program.Title,
-		episode.ID,
-		episode.Title,
+		programID,
+		programTitle,
+		strconv.Itoa(episode.ID),
+		episode.ProgramTitle,
 	})
 }
 

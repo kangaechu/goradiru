@@ -1,6 +1,6 @@
 package goradiru
 
-// 設定ファイル内のProgramsにあるEpisodeをダウンロード
+// Download 設定ファイル内のProgramsにあるEpisodeをダウンロード
 func Download() {
 	config := GetConfig()
 
@@ -15,7 +15,10 @@ func Download() {
 			panic(err)
 		}
 	}
-	dps.Save() //nolint:errcheck
+	err := dps.Save()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func ListPrograms() {

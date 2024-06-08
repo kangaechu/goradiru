@@ -4,4 +4,4 @@ FileType: m4a
 DownloadedHistoryConfFile: config/downloaded.yaml
 Programs:
   - Name: カルチャーラジオ 科学と人間
-    Url: https://www.nhk.or.jp/radioondemand/json/3065/bangumi_3065_01.json
+    Url: https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/series?site_id=3065&corner_site_id=01
