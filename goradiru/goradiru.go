@@ -15,7 +15,10 @@ func Download() {
 			panic(err)
 		}
 	}
-	dps.Save() //nolint:errcheck
+	err := dps.Save()
+	if err != nil {
+		panic(err)
+	}
 }
 
 func ListPrograms() {

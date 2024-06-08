@@ -1,7 +1,7 @@
 package goradiru
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 	"sort"
 	"strconv"
@@ -19,23 +19,26 @@ type DownloadedProgram struct {
 }
 
 func LoadDownloadedPrograms(downloadedHistoryConfFile string) (dps *DownloadedPrograms) {
-	if dps == nil {
-		var err error
-		file, err := os.Open(downloadedHistoryConfFile)
-		defer file.Close() //nolint:errcheck
+	var err error
+	file, err := os.Open(downloadedHistoryConfFile)
+	defer func(file *os.File) {
+		err := file.Close()
 		if err != nil {
-			// ファイルがない場合は空のDownloadedProgramsを返す
-			dps = new(DownloadedPrograms)
-			return dps
+			panic("error on closing downloaded history")
 		}
-		readBytes, err := ioutil.ReadAll(file)
-		if err != nil {
-			panic("error on reading downloaded history")
-		}
-		err = yaml.Unmarshal(readBytes, &dps)
-		if err != nil {
-			panic("error on reading downloaded history")
-		}
+	}(file)
+	if err != nil {
+		// ファイルがない場合は空のDownloadedProgramsを返す
+		dps = new(DownloadedPrograms)
+		return dps
+	}
+	readBytes, err := io.ReadAll(file)
+	if err != nil {
+		panic("error on reading downloaded history")
+	}
+	err = yaml.Unmarshal(readBytes, &dps)
+	if err != nil {
+		panic("error on reading downloaded history")
 	}
 	return dps
 }
@@ -80,8 +83,8 @@ func (dps DownloadedPrograms) isAlreadyDownloaded(episode *Episode) bool {
 }
 
 // Downloadされたものに追加する
-func (dps *DownloadedPrograms) addDownloadedEpisode(episode *Episode, programID string, programTitle string) {
-	*dps = append(*dps, DownloadedProgram{
+func (dps DownloadedPrograms) addDownloadedEpisode(episode *Episode, programID string, programTitle string) {
+	dps = append(dps, DownloadedProgram{
 		programID,
 		programTitle,
 		strconv.Itoa(episode.ID),
