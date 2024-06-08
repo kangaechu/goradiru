@@ -3,34 +3,28 @@ package goradiru
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 )
 
+type AvailableProgram struct {
+	ID             int    `json:"id"` // 458
+	Title          string `json:"title"`
+	RadioBroadcast string `json:"radio_broadcast"` // "R1" / "R2" / "FM"
+	CornerName     string `json:"corner_name"`
+	OnAirDate      string `json:"onair_date"` // 最新の放送日 (2024年6月8日(土)放送)
+	ThumbnailURL   string `json:"thumbnail_url"`
+	SeriesSiteID   string `json:"series_site_id"` // 2769
+	CornerSiteID   string `json:"corner_site_id"` // 01
+}
+
 type AvailableProgramJSON struct {
-	AvailablePrograms []struct {
-		SiteID          string `json:"site_id"`
-		ProgramName     string `json:"program_name"`
-		ProgramNameKana string `json:"program_name_kana"`
-		MediaCode       string `json:"media_code"`
-		CornerID        string `json:"corner_id"`
-		CornerName      string `json:"corner_name"`
-		ThumbnailP      string `json:"thumbnail_p"`
-		ThumbnailC      string `json:"thumbnail_c"`
-		OpenTime        string `json:"open_time"`
-		CloseTime       string `json:"close_time"`
-		OnairDate       string `json:"onair_date"`
-		LinkURL         string `json:"link_url"`
-		StartTime       string `json:"start_time"`
-		UpdateTime      string `json:"update_time"`
-		Dev             string `json:"dev"`
-		DetailJSON      string `json:"detail_json"`
-	} `json:"data_list"`
+	Corners []AvailableProgram `json:"corners"`
 }
 
 func getAvailablePrograms() error {
-	indexURL := "https://www.nhk.or.jp/radioondemand/json/index_v3/index.json"
+	indexURL := "https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/corners/new_arrivals"
 	availableProgramJSON := AvailableProgramJSON{}
 
 	res, err := http.Get(indexURL)
@@ -42,7 +36,7 @@ func getAvailablePrograms() error {
 			err = res.Body.Close()
 		}
 	}()
-	jsonBytes, err := ioutil.ReadAll(res.Body)
+	jsonBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		return err
 	}
@@ -51,9 +45,13 @@ func getAvailablePrograms() error {
 		return err
 	}
 
-	for _, p := range availableProgramJSON.AvailablePrograms {
-		fmt.Println("  - Name:", p.ProgramName)
-		fmt.Println("    URL:", p.DetailJSON)
+	for _, p := range availableProgramJSON.Corners {
+		fmt.Println("  - Name:", p.Title)
+		fmt.Println("    URL:", generateProgramURL(p.SeriesSiteID, p.CornerSiteID))
 	}
 	return nil
+}
+
+func generateProgramURL(seriesSiteID string, cornerSiteID string) string {
+	return fmt.Sprintf("https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/series?site_id=%s&corner_site_id=%s", seriesSiteID, cornerSiteID)
 }
