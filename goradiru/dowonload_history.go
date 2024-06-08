@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"sort"
+	"strconv"
 
 	"gopkg.in/yaml.v2"
 )
@@ -71,7 +72,7 @@ func (dps DownloadedPrograms) Save() error {
 // すでにダウンロードされたものか確認する
 func (dps DownloadedPrograms) isAlreadyDownloaded(episode *Episode) bool {
 	for _, dp := range dps {
-		if dp.EpisodeID == episode.ID {
+		if dp.EpisodeID == strconv.Itoa(episode.ID) {
 			return true
 		}
 	}
@@ -79,12 +80,12 @@ func (dps DownloadedPrograms) isAlreadyDownloaded(episode *Episode) bool {
 }
 
 // Downloadされたものに追加する
-func (dps *DownloadedPrograms) addDownloadedEpisode(episode *Episode) {
+func (dps *DownloadedPrograms) addDownloadedEpisode(episode *Episode, programID string, programTitle string) {
 	*dps = append(*dps, DownloadedProgram{
-		episode.Program.ID,
-		episode.Program.Title,
-		episode.ID,
-		episode.Title,
+		programID,
+		programTitle,
+		strconv.Itoa(episode.ID),
+		episode.ProgramTitle,
 	})
 }
 

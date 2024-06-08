@@ -1,6 +1,6 @@
 package goradiru
 
-// 設定ファイル内のProgramsにあるEpisodeをダウンロード
+// Download 設定ファイル内のProgramsにあるEpisodeをダウンロード
 func Download() {
 	config := GetConfig()
 

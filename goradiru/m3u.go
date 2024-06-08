@@ -14,7 +14,7 @@ import (
 func downloadEpisode(episode *Episode) (err error) {
 	config := GetConfig()
 
-	m3u8URL := episode.URL
+	m3u8URL := episode.StreamURL
 
 	progDir := config.ProgDir
 	fileType := config.FileType
@@ -49,7 +49,6 @@ func convertM3u8ToM4A(masterM3u8Path string, filename string, metadata []string)
 	f.setArgs(
 		"-y", "-http_seekable", "0",
 		"-i", masterM3u8Path,
-		"-absf", "aac_adtstoasc",
 		"-acodec", "copy",
 	)
 
@@ -97,27 +96,10 @@ func generateMetadata(episode *Episode) (metadata []string) {
 
 func fmtTitle(episode *Episode) string {
 	var title string
-	// program series episode
-	// 全部違う : こども科学電話相談
-	// seriesがnull, programがepisodeに含まれている : カルチャーラジオ 東京03
-	// ProgramとSeriesが同じ場合は2回出力しない
-	programTitle := episode.Program.Title
-	seriesTitle := episode.Series.Title
-	episodeTitle := episode.Title
-	episodeDate := episode.Start.Format("20060102-1504")
+	programTitle := episode.ProgramTitle
+	episodeDate := episode.OnairDate
 
-	series := episode.Series.Title
-	if series == "" {
-		if programTitle == episodeTitle {
-			title = episodeTitle + " " + episodeDate
-		} else if strings.Contains(episodeTitle, programTitle) {
-			title = episodeTitle
-		} else {
-			title = programTitle + " " + episodeTitle
-		}
-	} else {
-		title = programTitle + " " + seriesTitle + " " + episodeTitle
-	}
+	title = programTitle + " " + episodeDate
 	title = strings.Replace(title, "　", " ", -1)
 	title = strings.Replace(title, "【", " ", -1)
 	title = strings.Replace(title, "】", " ", -1)
