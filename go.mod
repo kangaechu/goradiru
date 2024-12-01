@@ -1,5 +1,7 @@
 module github.com/kangaechu/goradiru
 
+go 1.23.3
+
 require (
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
@@ -27,5 +29,3 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-go 1.22.4
