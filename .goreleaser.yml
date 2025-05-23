@@ -1,5 +1,6 @@
 # .goreleaser.yml
 # Build customization
+version: 2
 builds:
   - binary: goradiru
     goos:
