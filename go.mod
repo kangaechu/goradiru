@@ -5,7 +5,7 @@ go 1.24.3
 require (
 	github.com/spf13/cobra v1.9.1
 	github.com/spf13/viper v1.20.1
-	golang.org/x/sys v0.33.0
+	golang.org/x/sys v0.35.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
