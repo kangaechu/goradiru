@@ -1,4 +1,4 @@
-FROM golang:1.24.3-bookworm AS build
+FROM golang:1.26.4-trixie AS build
 
 WORKDIR /app
 COPY go.mod go.sum ./
@@ -10,7 +10,7 @@ COPY cmd/ ./cmd
 RUN go build -o /app/main -ldflags '-s -w' main.go
 
 
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
 
 RUN apt-get update && apt-get install -y \
     ffmpeg \
